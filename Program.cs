@@ -14,14 +14,6 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider
-        .GetRequiredService<BankDbContext>();
-
-    await db.Database.EnsureCreatedAsync();
-}
-
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "ok",
