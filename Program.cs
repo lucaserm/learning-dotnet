@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BankApi.Dtos;
 using BankApi.Data;
 using BankApi.Services;
+using BankApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<BankDbContext>(options =>
 builder.Services.AddScoped<IAccountService, AccountService>();
 
 var app = builder.Build();
+
+app.UseMiddleware<BusinessExceptionMiddleware>();
 
 app.MapGet("/health", () => Results.Ok(new
 {
@@ -75,14 +78,6 @@ app.MapPost("/accounts/{id:guid}/deposits", async (
     AccountTransactionRequest request,
     IAccountService accountService) =>
 {
-    if (request.Amount <= 0)
-    {
-        return Results.BadRequest(new
-        {
-            error = "Amount must be greater than zero."
-        });
-    }
-
     var account = await accountService.DepositAsync(id, request.Amount);
 
     if (account is null)
@@ -103,37 +98,19 @@ app.MapPost("/accounts/{id:guid}/withdrawals", async (
     AccountTransactionRequest request,
     IAccountService accountService) =>
 {
-    if (request.Amount <= 0)
+    var account = await accountService.WithdrawAsync(id, request.Amount);
+
+    if (account is null)
     {
-        return Results.BadRequest(new
-        {
-            error = "Amount must be greater than zero."
-        });
+        return Results.NotFound();
     }
 
-    try
-    {
-        var account = await accountService.WithdrawAsync(id, request.Amount);
-
-        if (account is null)
-        {
-            return Results.NotFound();
-        }
-
-        return Results.Ok(new AccountResponse(
-            account.Id,
-            account.Owner,
-            account.Balance,
-            account.CreatedAt
-        ));
-    }
-    catch (InvalidOperationException exception)
-    {
-        return Results.BadRequest(new
-        {
-            error = exception.Message
-        });
-    }
+    return Results.Ok(new AccountResponse(
+        account.Id,
+        account.Owner,
+        account.Balance,
+        account.CreatedAt
+    ));
 });
 
 app.Run();

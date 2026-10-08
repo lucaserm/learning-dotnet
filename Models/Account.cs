@@ -1,3 +1,5 @@
+using BankApi.Exceptions;
+
 namespace BankApi.Models;
 
 public class Account
@@ -26,8 +28,7 @@ public class Account
     {
         if (amount <= 0)
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(amount),
+            throw new BusinessRuleException(
                 "Amount must be greater than zero."
             );
         }
@@ -39,15 +40,14 @@ public class Account
     {
         if (amount <= 0)
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(amount),
+            throw new BusinessRuleException(
                 "Amount must be greater than zero."
             );
         }
 
         if (amount > Balance)
         {
-            throw new InvalidOperationException("Insufficient balance.");
+            throw new BusinessRuleException("Insufficient balance.");
         }
 
         Balance -= amount;
