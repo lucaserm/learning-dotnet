@@ -29,4 +29,34 @@ public class AccountService : IAccountService
             .AsNoTracking()
             .FirstOrDefaultAsync(account => account.Id == id);
     }
+
+    public async Task<Account?> DepositAsync(Guid id, decimal amount)
+    {
+        var account = await _db.Accounts.FindAsync(id);
+
+        if (account is null)
+        {
+            return null;
+        }
+
+        account.Deposit(amount);
+        await _db.SaveChangesAsync();
+
+        return account;
+    }
+
+    public async Task<Account?> WithdrawAsync(Guid id, decimal amount)
+    {
+        var account = await _db.Accounts.FindAsync(id);
+
+        if (account is null)
+        {
+            return null;
+        }
+
+        account.Withdraw(amount);
+        await _db.SaveChangesAsync();
+
+        return account;
+    }
 }
