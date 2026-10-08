@@ -1,23 +1,32 @@
-using System.Collections.Concurrent;
 using BankApi.Models;
+using BankApi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankApi.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly ConcurrentDictionary<Guid, Account> _accounts = new();
-    public Account Create(string owner)
+    private readonly BankDbContext _db;
+
+    public AccountService(BankDbContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<Account> CreateAsync(string owner)
     {
         var account = new Account(owner);
-        _accounts[account.Id] = account;
+
+        _db.Accounts.Add(account);
+        await _db.SaveChangesAsync();
 
         return account;
     }
 
-    public Account? GetById(Guid id)
+    public async Task<Account?> GetByIdAsync(Guid id)
     {
-        return _accounts.TryGetValue(id, out var account)
-            ? account
-            : null;
+        return await _db.Accounts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(account => account.Id == id);
     }
 }
