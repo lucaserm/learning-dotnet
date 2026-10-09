@@ -113,6 +113,16 @@ app.MapPost("/accounts/{id:guid}/withdrawals", async (
     ));
 });
 
+app.MapGet("/accounts", async (
+    IAccountService accountService,
+    int page = 0,
+    int pageSize = 10) =>
+{
+    var response = await accountService.ListAsync(page, pageSize);
+
+    return Results.Ok(response);
+});
+
 app.Run();
 
 public partial class Program { } 
