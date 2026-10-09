@@ -114,3 +114,5 @@ app.MapPost("/accounts/{id:guid}/withdrawals", async (
 });
 
 app.Run();
+
+public partial class Program { } 
