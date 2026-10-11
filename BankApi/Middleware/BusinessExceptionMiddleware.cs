@@ -21,7 +21,7 @@ public class BusinessExceptionMiddleware
             when (!context.Response.HasStarted)
         {
             await Results.Problem(
-                statusCode: StatusCodes.Status400BadRequest,    
+                statusCode: StatusCodes.Status400BadRequest,
                 title: "Business rule violation",
                 detail: ex.Message
             ).ExecuteAsync(context);

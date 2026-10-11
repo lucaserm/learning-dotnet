@@ -7,9 +7,15 @@ using BankApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration
+    .GetConnectionString("BankDatabase")
+    ?? throw new InvalidOperationException(
+        "Connection string 'BankDatabase' not found."
+    );
+
 builder.Services.AddDbContext<BankDbContext>(options =>
 {
-    options.UseSqlite("Data Source=bank.db");
+    options.UseSqlite(connectionString);
 });
 
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -125,4 +131,4 @@ app.MapGet("/accounts", async (
 
 app.Run();
 
-public partial class Program { } 
+public partial class Program { }

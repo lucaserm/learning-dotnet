@@ -3,12 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankApi.Data;
 
-public class BankDbContext : DbContext
+public class BankDbContext(DbContextOptions<BankDbContext> options) : DbContext(options)
 {
-    public BankDbContext(DbContextOptions<BankDbContext> options)
-        : base(options)
-    {
-    }
-
-    public DbSet<Account> Accounts => Set<Account>();
+  public DbSet<Account> Accounts => Set<Account>();
 }
