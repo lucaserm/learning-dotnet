@@ -1,4 +1,6 @@
 <Solution>
   <Project Path="BankApi.Tests/BankApi.Tests.csproj" />
+  <Project Path="BankApi.Blazor/BankApi.Blazor.csproj" />
+  <Project Path="BankApi.Worker/BankApi.Worker.csproj" />
   <Project Path="BankApi/BankApi.csproj" />
 </Solution>

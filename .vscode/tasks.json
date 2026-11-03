@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "dotnet build Bank.slnx",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "api",
+      "dependsOn": "build",
+      "type": "shell",
+      "command": "dotnet run --no-build --project BankApi --launch-profile http",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "blazor",
+      "dependsOn": "build",
+      "type": "shell",
+      "command": "dotnet run --no-build --project BankApi.Blazor --launch-profile http",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "worker",
+      "dependsOn": "build",
+      "type": "shell",
+      "command": "dotnet run --no-build --project BankApi.Worker",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "start-all",
+      "dependsOn": ["api", "blazor", "worker"],
+      "problemMatcher": []
+    }
+  ]
+}
