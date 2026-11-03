@@ -20,6 +20,8 @@ builder.Services.AddDbContext<BankDbContext>(options =>
 
 builder.Services.AddScoped<IAccountService, AccountService>();
 
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 app.UseMiddleware<BusinessExceptionMiddleware>();
@@ -45,23 +47,6 @@ app.MapPost("/accounts", async (
 
     var account = await accountService.CreateAsync(request.Owner);
     return Results.Created($"/accounts/{account.Id}", account.ToResponse());
-});
-
-app.MapGet("/accounts/{id:guid}", async (
-    Guid id,
-    IAccountService accountService) =>
-{
-    var account = await accountService.GetByIdAsync(id);
-
-    if (account is null)
-    {
-        return Results.NotFound(new
-        {
-            error = "account not found."
-        });
-    }
-
-    return Results.Ok(account.ToResponse());
 });
 
 app.MapPost("/accounts/{id:guid}/deposits", async (
@@ -103,6 +88,8 @@ app.MapGet("/accounts", async (
 
     return Results.Ok(response);
 });
+
+app.MapControllers();
 
 app.Run();
 
