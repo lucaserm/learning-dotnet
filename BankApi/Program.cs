@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 
-using BankApi.Dtos;
 using BankApi.Data;
 using BankApi.Services;
 using BankApi.Middleware;
@@ -31,63 +30,6 @@ app.MapGet("/health", () => Results.Ok(new
     status = "ok",
     message = "bank api is running"
 }));
-
-app.MapPost("/accounts", async (
-    CreateAccountRequest request,
-    IAccountService accountService) =>
-{
-    if (string.IsNullOrWhiteSpace(request.Owner))
-    {
-        return Results.BadRequest(new
-        {
-            error = "owner is required."
-        });
-
-    }
-
-    var account = await accountService.CreateAsync(request.Owner);
-    return Results.Created($"/accounts/{account.Id}", account.ToResponse());
-});
-
-app.MapPost("/accounts/{id:guid}/deposits", async (
-    Guid id,
-    AccountTransactionRequest request,
-    IAccountService accountService) =>
-{
-    var account = await accountService.DepositAsync(id, request.Amount);
-
-    if (account is null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(account.ToResponse());
-});
-
-app.MapPost("/accounts/{id:guid}/withdrawals", async (
-    Guid id,
-    AccountTransactionRequest request,
-    IAccountService accountService) =>
-{
-    var account = await accountService.WithdrawAsync(id, request.Amount);
-
-    if (account is null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(account.ToResponse());
-});
-
-app.MapGet("/accounts", async (
-    IAccountService accountService,
-    int page = 0,
-    int pageSize = 10) =>
-{
-    var response = await accountService.ListAsync(page, pageSize);
-
-    return Results.Ok(response);
-});
 
 app.MapControllers();
 
