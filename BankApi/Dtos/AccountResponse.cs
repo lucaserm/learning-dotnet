@@ -1,3 +1,5 @@
+using BankApi.Models;
+
 namespace BankApi.Dtos;
 
 public record AccountResponse
@@ -7,3 +9,16 @@ public record AccountResponse
     decimal Balance,
     DateTime CreatedAt
 );
+
+public static class AccountMappingExtensions
+{
+    public static AccountResponse ToResponse(this Account account)
+    {
+        return new AccountResponse(
+            account.Id,
+            account.Owner,
+            account.Balance,
+            account.CreatedAt
+        );
+    }
+}

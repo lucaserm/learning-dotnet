@@ -15,10 +15,7 @@ public class Account
     {
         if (string.IsNullOrWhiteSpace(owner))
         {
-            throw new ArgumentException(
-                "owner is required.",
-                nameof(owner)
-            );
+            throw new BusinessRuleException("owner is required.");
         }
 
         Owner = owner.Trim();

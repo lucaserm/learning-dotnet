@@ -7,25 +7,20 @@ using BankApi.Exceptions;
 
 namespace BankApi.Services;
 
-public class AccountService : IAccountService
+public class AccountService(BankDbContext db) : IAccountService
 {
-    private readonly BankDbContext _db;
-
-    public AccountService(BankDbContext db)
-    {
-        _db = db;
-    }
+    private readonly BankDbContext _db = db;
 
     public async Task<PagedResponse<AccountResponse>> ListAsync(int page, int pageSize)
     {
         if (page < 0 || pageSize < 0 || pageSize > 100)
         {
             throw new BusinessRuleException(
-                "page must be positive and pageSize must be between 0 and 100."
+                "page must be positive and pageSize must be greater than or equal to 0 and less than or equal to 100."
             );
         }
 
-        var offset = page * pageSize;
+        var offset = (long)page * pageSize;
 
         if (offset > int.MaxValue)
         {
@@ -39,7 +34,7 @@ public class AccountService : IAccountService
         var items = await query
             .OrderBy(account => account.CreatedAt)
             .ThenBy(account => account.Id)
-            .Skip(offset)
+            .Skip((int)offset)
             .Take(pageSize)
             .Select(account => new AccountResponse(
                 account.Id,

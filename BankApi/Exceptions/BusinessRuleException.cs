@@ -1,8 +1,3 @@
 namespace BankApi.Exceptions;
 
-public class BusinessRuleException : Exception
-{
-    public BusinessRuleException(string message) : base(message)
-    {
-    }
-}
+public class BusinessRuleException(string message) : Exception(message);

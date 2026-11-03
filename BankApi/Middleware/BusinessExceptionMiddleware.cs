@@ -2,14 +2,9 @@ using BankApi.Exceptions;
 
 namespace BankApi.Middleware;
 
-public class BusinessExceptionMiddleware
+public class BusinessExceptionMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public BusinessExceptionMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    private readonly RequestDelegate _next = next;
 
     public async Task InvokeAsync(HttpContext context)
     {

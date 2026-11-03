@@ -44,15 +44,7 @@ app.MapPost("/accounts", async (
     }
 
     var account = await accountService.CreateAsync(request.Owner);
-
-    var response = new AccountResponse(
-        account.Id,
-        account.Owner,
-        account.Balance,
-        account.CreatedAt
-    );
-
-    return Results.Created($"/accounts/{account.Id}", response);
+    return Results.Created($"/accounts/{account.Id}", account.ToResponse());
 });
 
 app.MapGet("/accounts/{id:guid}", async (
@@ -69,14 +61,7 @@ app.MapGet("/accounts/{id:guid}", async (
         });
     }
 
-    var response = new AccountResponse(
-        account.Id,
-        account.Owner,
-        account.Balance,
-        account.CreatedAt
-    );
-
-    return Results.Ok(response);
+    return Results.Ok(account.ToResponse());
 });
 
 app.MapPost("/accounts/{id:guid}/deposits", async (
@@ -91,12 +76,7 @@ app.MapPost("/accounts/{id:guid}/deposits", async (
         return Results.NotFound();
     }
 
-    return Results.Ok(new AccountResponse(
-        account.Id,
-        account.Owner,
-        account.Balance,
-        account.CreatedAt
-    ));
+    return Results.Ok(account.ToResponse());
 });
 
 app.MapPost("/accounts/{id:guid}/withdrawals", async (
@@ -111,12 +91,7 @@ app.MapPost("/accounts/{id:guid}/withdrawals", async (
         return Results.NotFound();
     }
 
-    return Results.Ok(new AccountResponse(
-        account.Id,
-        account.Owner,
-        account.Balance,
-        account.CreatedAt
-    ));
+    return Results.Ok(account.ToResponse());
 });
 
 app.MapGet("/accounts", async (
