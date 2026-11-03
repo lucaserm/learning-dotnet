@@ -1,0 +1,80 @@
+@page "/accounts"
+@using System.Text.Json
+@rendermode InteractiveServer
+@inject IHttpClientFactory factory
+
+<PageTitle>Accounts</PageTitle>
+
+<h1>Accounts</h1>
+
+<input @bind="newOwner" placeholder="Owner" />
+<button class="btn btn-primary" @onclick="CreateAsync">Create</button>
+
+@if (error is not null)
+{
+  <p class="text-danger">@error</p>
+}
+else if (accounts is null)
+{
+  <p><em>Loading...</em></p>
+}
+else
+{
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Owner</th>
+        <th>Balance</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var account in accounts)
+      {
+        <tr>
+          <td>@account.Owner</td>
+          <td>@account.Balance.ToString("C")</td>
+          <td>@account.CreatedAt.ToLocalTime()</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@code {
+  private List<AccountDto>? accounts;
+  private string? error;
+  private string newOwner = "";
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadAsync();
+  }
+
+  private async Task LoadAsync()
+  {
+    try
+    {
+      var client = factory.CreateClient("bank");
+      var page = await client.GetFromJsonAsync<PagedDto>("/accounts?page=0&pageSize=50");
+      accounts = page?.Items ?? [];
+      Console.WriteLine(JsonSerializer.Serialize(page));
+      error = null;
+    }
+    catch (HttpRequestException)
+    {
+      error = "API is down.";
+    }
+  }
+
+  private async Task CreateAsync()
+  {
+    var client = factory.CreateClient("bank");
+    var response = await client.PostAsJsonAsync("/accounts", new { owner = newOwner });
+    newOwner = "";
+    await LoadAsync();
+  }
+
+  private record AccountDto(Guid Id, string Owner, decimal Balance, DateTime CreatedAt);
+  private record PagedDto(List<AccountDto> Items, int Page, int PageSize, int TotalCount);
+}
