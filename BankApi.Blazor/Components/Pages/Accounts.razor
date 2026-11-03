@@ -1,5 +1,4 @@
 @page "/accounts"
-@using System.Text.Json
 @rendermode InteractiveServer
 @inject IHttpClientFactory factory
 
@@ -9,6 +8,11 @@
 
 <input @bind="newOwner" placeholder="Owner" />
 <button class="btn btn-primary" @onclick="CreateAsync">Create</button>
+
+@if (createError is not null)
+{
+  <p class="text-danger">@createError</p>
+}
 
 @if (error is not null)
 {
@@ -44,6 +48,7 @@ else
 @code {
   private List<AccountDto>? accounts;
   private string? error;
+  private string? createError;
   private string newOwner = "";
 
   protected override async Task OnInitializedAsync()
@@ -58,7 +63,6 @@ else
       var client = factory.CreateClient("bank");
       var page = await client.GetFromJsonAsync<PagedDto>("/accounts?page=0&pageSize=50");
       accounts = page?.Items ?? [];
-      Console.WriteLine(JsonSerializer.Serialize(page));
       error = null;
     }
     catch (HttpRequestException)
@@ -69,12 +73,30 @@ else
 
   private async Task CreateAsync()
   {
-    var client = factory.CreateClient("bank");
-    var response = await client.PostAsJsonAsync("/accounts", new { owner = newOwner });
-    newOwner = "";
-    await LoadAsync();
+    createError = null;
+
+    try
+    {
+      var client = factory.CreateClient("bank");
+      var response = await client.PostAsJsonAsync("/accounts", new { owner = newOwner });
+
+      if (!response.IsSuccessStatusCode)
+      {
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDto>();
+        createError = problem?.Detail ?? problem?.Title ?? "Could not create account.";
+        return;
+      }
+
+      newOwner = "";
+      await LoadAsync();
+    }
+    catch (HttpRequestException)
+    {
+      createError = "API is down.";
+    }
   }
 
+  private record ProblemDto(string? Title, string? Detail);
   private record AccountDto(Guid Id, string Owner, decimal Balance, DateTime CreatedAt);
   private record PagedDto(List<AccountDto> Items, int Page, int PageSize, int TotalCount);
 }
